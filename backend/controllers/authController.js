@@ -1,11 +1,10 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
+import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
     const { fullName, username, password, confirmPassword, gender } = req.body;
-
-    console.log("req.body: ", req.body);
 
     // Check if password & confirmPassword match
     if (password !== confirmPassword) {
@@ -21,7 +20,8 @@ export const signup = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const image = `https://robohash.org/${username}.png/set_set1/bgset_bg1/3.14159?size=300x300`;
+    const sanitizedUsername = username.replace(/\s+/g, ""); // Remove white spaces from username
+    const image = `https://robohash.org/${sanitizedUsername}.png/set_set1/bgset_bg1/3.14159?size=300x300`;
 
     // User Schema
     const newUser = new User({
@@ -29,12 +29,14 @@ export const signup = async (req, res) => {
       username,
       password: hashedPassword,
       gender,
-      profilePicture: image,
+      profilePic: image,
     });
 
     if (!newUser) {
       return res.status(400).json({ error: "Invalid user data" });
     }
+
+    await generateTokenAndSetCookie(newUser._id, res); // Generate JWT token and set cookie
 
     await newUser.save(); // Save user to database
 
@@ -43,11 +45,11 @@ export const signup = async (req, res) => {
       fullName: newUser.fullName,
       username: newUser.username,
       password: newUser.password,
-      profilePicture: newUser.profilePicture,
+      profilePic: newUser.profilePic,
     });
-
-    res.status(201).json({ message: "User created successfully" });
+    console.log("User created successfully");
   } catch (error) {
+    console.log("Signup error: ", error);
     res.status(500).json({ error: error, message: "Server error" });
   }
 };
