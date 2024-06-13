@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 
+// Middleware to check if the user is logged in
 export const protectRoute = async (req, res, next) => {
   try {
     const token = req.cookies.jwt;
@@ -31,6 +32,21 @@ export const protectRoute = async (req, res, next) => {
     next(); // Move to next middleware
   } catch (error) {
     console.log("Error in protectRoute middleware: ", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Middleware to check if the user is an admin
+export const isAdmin = (req, res, next) => {
+  try {
+    if (req.user && req.user.role === "admin") {
+      // Check if user exist & is admin
+      next(); // Move to next middleware
+    } else {
+      res.status(403).json({ message: "Access denied. Admins only." });
+    }
+  } catch (error) {
+    console.log("Error in isAdmin middleware: ", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };

@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
 app.use(express.json()); // Parse JSON bodies
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes); // Handle signup, login, logout
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
