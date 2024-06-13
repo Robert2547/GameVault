@@ -36,7 +36,7 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: "Invalid user data" });
     }
 
-    await generateTokenAndSetCookie(newUser._id, res); // Generate JWT token and set cookie
+    generateTokenAndSetCookie(newUser._id, res); // Generate JWT token and set cookie
 
     await newUser.save(); // Save user to database
 
@@ -44,12 +44,52 @@ export const signup = async (req, res) => {
       _id: newUser._id,
       fullName: newUser.fullName,
       username: newUser.username,
-      password: newUser.password,
       profilePic: newUser.profilePic,
     });
     console.log("User created successfully");
   } catch (error) {
     console.log("Signup error: ", error);
+    res.status(500).json({ error: error, message: "Server error" });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ username });
+    const isPasswordCorrect =
+      user && (await bcrypt.compare(password, user.password));
+
+    // Check if password is correct & user exists
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ error: "Invalid username or password" });
+    }
+
+    generateTokenAndSetCookie(user._id, res); // Generate JWT token and set cookie
+
+    // Send user data
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+      profilePic: user.profilePic,
+    });
+    console.log(`${user.username} logged in successfully`);
+  } catch (error) {
+    console.log("Login error: ", error);
+    res.status(500).json({ error: error, message: "Server error" });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0, history: true }); // Clear cookie
+
+    res.status(200).json({ success: "Logged out successfully" });
+  } catch (error) {
+    console.log("Logout error: ", error);
     res.status(500).json({ error: error, message: "Server error" });
   }
 };
