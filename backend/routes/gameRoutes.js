@@ -8,4 +8,6 @@ router.post("/search", addHeaders, gameController.searchGames); // POST /api/gam
 
 router.post("/artwork/:id", addHeaders, gameController.artWorkByID); // GET /api/games/artwork/:id (get covert art of games by game ID)
 
+router.post("/:id", addHeaders, gameController.videoByID); // GET /api/games/:id (get video of games by game ID)
+
 export default router;

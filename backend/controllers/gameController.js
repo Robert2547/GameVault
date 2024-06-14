@@ -25,10 +25,8 @@ export const artWorkByID = async (req, res) => {
   try {
     const url = "https://api.igdb.com/v4/covers";
     const gameID = req.params.id; // Game ID from request params
-    console.log("Game ID:", gameID);
 
     const headers = req.headers;
-    console.log("Headers:", headers);
 
     const reponse = await fetch(url, {
       method: "POST",
@@ -41,6 +39,29 @@ export const artWorkByID = async (req, res) => {
     res.status(200).json(data);
   } catch (error) {
     console.log("Error in artWorkByID:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//Get video by gameID
+export const videoByID = async (req, res) => {
+  try {
+    const url = "https://api.igdb.com/v4/games";
+    const gameID = req.params.id; // Game ID from request params
+
+    const headers = req.headers;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers, // Headers are added by addHeaders middleware
+      body: `fields *; where id = ${gameID};`, // Get videos based on gameID
+    });
+
+    const data = await response.json();
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.log("Error in videoByID:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
