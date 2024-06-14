@@ -1,18 +1,15 @@
+import makeAPIRequest from "../utils/makeAPIRequest.js";
+
 // Search for games based on search query
+// Return game data up to limit of 10 results
 export const searchGames = async (req, res) => {
   try {
-    const url = "https://api.igdb.com/v4/search";
-    const searchQuery = req.body.searchQuery; // Search query from request body
-
     const headers = req.headers;
+    const searchQuery = req.body.searchQuery; // Search query from request body
+    const query = `fields *; search "${searchQuery}"; limit 10;`; // Query to search for games based on searchQuery and limit to 10 results
 
-    const reponse = await fetch(url, {
-      method: "POST",
-      headers: headers, // Headers are added by addHeaders middleware
-      body: `fields *; search "${searchQuery}"; limit 10;`, // Search for games based on searchQuery and limit to 10 results
-    });
+    const data = await makeAPIRequest("search", query, headers); // Make API request to search for games
 
-    const data = await reponse.json();
     res.status(200).json(data);
   } catch (error) {
     console.log("Error in searchGames:", error.message);
@@ -20,21 +17,15 @@ export const searchGames = async (req, res) => {
   }
 };
 
-// Get covert at by game ID will return JSON of url
+// Get covert at by gameID
+// Return URL of the cover art
 export const artWorkByID = async (req, res) => {
   try {
-    const url = "https://api.igdb.com/v4/covers";
     const gameID = req.params.id; // Game ID from request params
-
     const headers = req.headers;
+    const query = `fields url; where game = ${gameID};`; // Query to get cover art based on gameID
 
-    const reponse = await fetch(url, {
-      method: "POST",
-      headers: headers, // Headers are added by addHeaders middleware
-      body: `fields url; where game = ${gameID};`, // Get artworks based on gameID and limit to 10 results
-    });
-
-    const data = await reponse.json();
+    const data = await makeAPIRequest("covers", query, headers); // Make API request to get cover art
 
     res.status(200).json(data);
   } catch (error) {
@@ -44,20 +35,14 @@ export const artWorkByID = async (req, res) => {
 };
 
 //Get video game info by gameID
+//Return ALL game data
 export const gameByID = async (req, res) => {
   try {
-    const url = "https://api.igdb.com/v4/games";
     const gameID = req.params.id; // Game ID from request params
-
     const headers = req.headers;
+    const query = `fields *; where id = ${gameID};`; // Query to get game data based on gameID
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: headers, // Headers are added by addHeaders middleware
-      body: `fields genres; where id = ${gameID};`, // Get videos based on gameID
-    });
-
-    const data = await response.json();
+    const data = await makeAPIRequest("games", query, headers); // Make API request to get game data
 
     res.status(200).json(data);
   } catch (error) {
@@ -67,10 +52,9 @@ export const gameByID = async (req, res) => {
 };
 
 //Get genres of video game by genreID
+//Return array of genre names
 export const genresByID = async (req, res) => {
   try {
-    const url = "https://api.igdb.com/v4/genres";
-
     const genreIDs = req.params.id
       .split(",")
       .map((id) => parseInt(id.trim(), 10)); // Parse Genre IDs from request params
@@ -79,12 +63,8 @@ export const genresByID = async (req, res) => {
     // Fetch genres based on genreID
     const fetchGenresByID = async (id) => {
       try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: headers, // Headers are added by addHeaders middleware
-          body: `fields name; where id = ${id};`, // Get genres based on genreID
-        });
-        const data = await response.json();
+        const query = `fields name; where id = ${id};`;
+        const data = await makeAPIRequest("genres", query, headers);
         return data;
       } catch (error) {
         console.log("Error in fetchGenresByID:", error.message);
