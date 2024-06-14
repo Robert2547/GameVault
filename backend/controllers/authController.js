@@ -32,7 +32,7 @@ export const signup = async (req, res) => {
       profilePic: image,
     });
 
-    if (!newUser) {
+    if (!newUser) { 
       return res.status(400).json({ error: "Invalid user data" });
     }
 
