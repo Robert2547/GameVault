@@ -20,7 +20,7 @@ export const protectRoute = async (req, res, next) => {
         .json({ error: "You must be logged in to access this route" });
     }
 
-    const user = await User.findById(decoded.id).select("-password"); // Get user data, excluding password
+    const user = await User.findById(decoded.userId).select("-password"); // Get user data, excluding password
     if (!user) {
       // User is not found in database
       return res

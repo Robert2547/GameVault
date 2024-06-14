@@ -1,6 +1,6 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
-import { generateTokenAndSetCookie } from "../utils/generateToken.js";
+import generateTokenAndSetCookie  from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
@@ -32,11 +32,11 @@ export const signup = async (req, res) => {
       profilePic: image,
     });
 
-    if (!newUser) { 
+    if (!newUser) {
       return res.status(400).json({ error: "Invalid user data" });
     }
 
-    generateTokenAndSetCookie(newUser._id, res); // Generate JWT token and set cookie
+    generateTokenAndSetCookie(newUser.id, res); // Generate JWT token and set cookie
 
     await newUser.save(); // Save user to database
 

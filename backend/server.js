@@ -5,6 +5,7 @@ import gameRoutes from "./routes/gameRoutes.js";
 import connectDB from "./db/connectToMongoDB.js";
 import { checkToken } from "./middleware/checkToken.js";
 import { protectRoute } from "./middleware/protectRoute.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 dotenv.config();
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
+app.use(cookieParser()); // Parse cookies
 
 // Routes
 app.use("/api/auth", authRoutes); // Handle signup, login, logout

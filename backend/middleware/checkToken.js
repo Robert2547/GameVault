@@ -10,21 +10,18 @@ export const checkToken = async (req, res, next) => {
     }
 
     // Find IGDB Authentication details from database
-    const tokenData = await IGDB_auth.findOne();
+    let tokenData = await IGDB_auth.findOne();
 
-    // Check if token is expired or not found
+    // Check if token is expired or not found, generate new token & save to database
     if (!tokenData || Date.now() >= tokenData.expires_at) {
-      console.log("Token expired or not found, generating new token....");
-      console.log("Data.now():", Date.now());
-      console.log("tokenData.expires_at:", tokenData.expires_at);
 
       const data = await generateIGDBToken(); // Generate new IGDB token
-      console.log("New token generated:", data);
 
       const newTokenData = {
         access_token: data.access_token,
         expires_at: Date.now() + data.expires_in * 1000, // Convert seconds to milliseconds
       };
+
 
       if (!newTokenData) {
         console.log("Error in generating newTokenData");
