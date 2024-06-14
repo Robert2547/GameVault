@@ -1,5 +1,5 @@
-import IGDB_auth from "../models/IGDB_auth.js";
-import { generateIGDBToken } from "../utils/igdbToken";
+import IGDB_auth from "../models/authModel.js";
+import { generateIGDBToken } from "../utils/igdbToken.js";
 
 export const checkToken = async (req, res, next) => {
   try {

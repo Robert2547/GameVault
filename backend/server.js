@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import gameRoutes from "./routes/gameRoutes.js";
 import connectDB from "./db/connectToMongoDB.js";
+import { checkToken } from "./middleware/checkToken.js";
+import { protectRoute } from "./middleware/protectRoute.js";
 
 const app = express();
 dotenv.config();
@@ -18,9 +20,8 @@ app.use(express.json()); // Parse JSON bodies
 
 // Routes
 app.use("/api/auth", authRoutes); // Handle signup, login, logout
-app.use("/api/game", gameRoutes); // Handle IGDB API requests (Game Catalog API)
+app.use("/api/game", protectRoute, checkToken, gameRoutes); // Handle IGDB API requests (Game Catalog API)
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
   connectDB();
 });
