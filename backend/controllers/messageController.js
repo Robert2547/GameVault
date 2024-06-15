@@ -24,13 +24,39 @@ export const sendMessage = async (req, res) => {
       message,
     });
 
-    if (newMessage) { // If message is created successfully
+    if (newMessage) {
+      // If message is created successfully
       conversation.messages.push(newMessage._id);
     }
+
+    //SOCKET IO IMPLEMENTATION TO MAKE IT REAL TIME
+
+    // Run in parallel, reduce time complexity
+    await Promise.all([newMessage.save(), conversation.save()]);
 
     res.status(201).json(newMessage);
   } catch (error) {
     console.log("Error in sendMessage: ", error);
+    res.status(500).json({ error: error, message: "Server error" });
+  }
+};
+
+export const getConversation = async (req, res) => {
+  try {
+    const { id: receiverId } = req.params;
+    const senderId = req.user._id;
+
+    const conversation = await Conversation.findOne({
+      members: { $all: [senderId, receiverId] },
+    }).populate("messages"); // Retrieve all messages in the conversation
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+    const messages = conversation.messages;
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log("Error in getConversation: ", error);
     res.status(500).json({ error: error, message: "Server error" });
   }
 };
